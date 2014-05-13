@@ -11,4 +11,9 @@ public class ControlSystem {
 	public static void updateSystem () {
 		
 	}
+	
+	public static int getTime(Node nodeFrom, Node nodeTo) {
+		return 0;
+		//idk
+	}
 }
