@@ -22,4 +22,8 @@ public class Node {
 			distances.remove(n);
 		}
 	}
+	
+	public int getDistance (Node to) {
+		return distances.get(to);
+	}
 }

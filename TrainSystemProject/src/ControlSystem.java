@@ -8,21 +8,20 @@ import java.util.TimerTask;
 public class ControlSystem {
 	static ArrayList<Train> trains;
 	static HashMap<Train, Path> paths;
-	private static int time;
+	
 	
 	public static void main (String[] args) {
 		initialize();
-		
+		TimeManager.initialize();
 		/**
 		 * Initialize, prompt, direct.
 		 */
 		
-		Timer Time = new Timer();
-		Time.scheduleAtFixedRate(new TimerTask () {
-			public void run () {
-				ControlSystem.updateSystem();
-			}
-		}, 1000, 1000);
+		
+		
+		//ArrayList<Path> testPath = new ArrayList<Path>();
+		
+		//Train t = new Train (testPath, 1, 4);
 	}
 	
 	public static void initialize () {
@@ -31,19 +30,11 @@ public class ControlSystem {
 	}
 	
 	public static void updateSystem () {
-		updateTime();
+		TimeManager.updateTime();
 		
 		for (Train train : trains) {
 			train.update();
 		}
 	}
 	
-	public static void updateTime () {
-		time += 1;
-	}
-	
-	public static int getTime(Node nodeFrom, Node nodeTo) {
-		return 0;
-		//idk
-	}
 }
