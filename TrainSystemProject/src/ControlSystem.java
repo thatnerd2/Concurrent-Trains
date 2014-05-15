@@ -8,7 +8,7 @@ public class ControlSystem {
 		
 	}
 	
-	public static void updateSystem () { //will run every second
+	public static void updateSystem () {
 		
 	}
 	
