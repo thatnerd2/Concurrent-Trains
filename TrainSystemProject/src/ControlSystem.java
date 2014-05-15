@@ -11,17 +11,12 @@ public class ControlSystem {
 	
 	
 	public static void main (String[] args) {
-		initialize();
+		ControlSystem.initialize();
 		TimeManager.initialize();
-		/**
-		 * Initialize, prompt, direct.
-		 */
+		
+		TestAdministrator.essentialsTest();
 		
 		
-		
-		//ArrayList<Path> testPath = new ArrayList<Path>();
-		
-		//Train t = new Train (testPath, 1, 4);
 	}
 	
 	public static void initialize () {
