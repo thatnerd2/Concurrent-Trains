@@ -1,8 +1,6 @@
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class ControlSystem {
@@ -26,9 +24,12 @@ public class ControlSystem {
 	
 	public static void updateSystem () {
 		TimeManager.updateTime();
-		
+		System.out.println("UPDATING");
 		for (Train train : trains) {
 			train.update();
+			if (train.getNodeTo() == null) {
+				System.out.println("Arrived");
+			}
 		}
 	}
 	

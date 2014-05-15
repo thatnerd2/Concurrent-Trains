@@ -5,7 +5,7 @@ public class TestAdministrator {
 	public static void essentialsTest () {
 		Node A = new Node();
 		Node B = new Node();
-		MapManager.connectNodes(A, B, 10);
+		MapManager.connectNodes(A, B, 5);
 		ArrayList<Node> path = new ArrayList<Node>();
 		path.add(A);
 		path.add(B);

@@ -9,10 +9,8 @@ public class Train {
 	public Train(ArrayList<Node> path, int speed) {
 		this.myPath = path;
 		this.speed = speed;
+		updateDestination();
 		this.arrivalTime = TimeManager.getCurrentTime() + nodeFrom.getDistance(nodeTo);
-		this.nodeFrom = myPath.get(0);
-		myPath.remove(0);
-		this.nodeTo = myPath.get(0);
 		this.distanceFrom = nodeFrom.getDistance(nodeTo);
 	}
 	public void update() {
