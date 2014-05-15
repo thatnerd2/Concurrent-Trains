@@ -1,8 +1,7 @@
 
 public class Train {
 	private Node nodeFrom, nodeTo;
-	private int departureTime, arrivalTime;
-	private int distanceFrom;
+	private int departureTime, arrivalTime, distanceFrom, trainID;
 	public Train () {
 		nodeFrom = new Node();
 		nodeTo = new Node();
@@ -18,6 +17,10 @@ public class Train {
 	//using update method for now
 	public void update() {
 		distanceFrom--;
+		if(distanceFrom==0) {
+			setNodeFrom(nodeTo);
+			setNodeTo(ControlSystem.get(trainID));
+		}
 	}
 	public void setFromAndTo(Node nodeFrom, Node nodeTo) {
 		this.nodeFrom = nodeFrom;
