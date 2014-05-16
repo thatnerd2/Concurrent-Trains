@@ -21,6 +21,4 @@ public class TimeManager {
 	public static void updateTime () {
 		time += 1;
 	}
-	
-	
 }

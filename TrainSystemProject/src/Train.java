@@ -31,6 +31,12 @@ public class Train {
 		}
 			
 	}
+	public boolean isBetween(Node node1, Node node2) {
+		if((nodeFrom == node1 || nodeTo == node1) && (nodeFrom == nodeTo || nodeTo == node2))
+			return true;
+		else
+			return false;
+	}
 	public void updateDestination() {
 		nodeFrom = myPath.get(0);
 		myPath.remove(0);
@@ -56,5 +62,23 @@ public class Train {
 	}
 	public void setNodeTo(Node nodeTo) {
 		this.nodeTo = nodeTo;
+	}
+	public int getArrivalTime() {
+		return arrivalTime;
+	}
+	public void setArrivalTime(int arrivalTime) {
+		this.arrivalTime = arrivalTime;
+	}
+	public int getSpeed() {
+		return speed;
+	}
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
+	public ArrayList<Node> getMyPath() {
+		return myPath;
+	}
+	public void setMyPath(ArrayList<Node> myPath) {
+		this.myPath = myPath;
 	}
 }
