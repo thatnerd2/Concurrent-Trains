@@ -22,8 +22,10 @@ public class Node {
 			distances.remove(n);
 		}
 	}
-	
-	public int getDistance (Node to) {
+	public ArrayList<Node> getAdjacents() {
+		return adjacentNodes;
+	}
+	public int getDistance(Node to) {
 		return distances.get(to);
 	}
 }
