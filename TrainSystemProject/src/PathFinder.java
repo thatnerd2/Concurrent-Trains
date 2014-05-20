@@ -7,45 +7,46 @@ public class PathFinder {
 		ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
 		
 		Node nextNode = start;
+		Node prevNode = start;
+		int pathContext = -1;
 		ArrayList<Node> initialPath = new ArrayList<Node>();
-		initialPath.add(nextNode);
+		initialPath.add(prevNode);
 		
 		paths.add(initialPath);
 		distances.add(0);
 		
 		while (!nextNode.equals(end)) {
 			nextNode = null;
-			Node prevNode = null;
-			int index = -1;
+			prevNode = null;
+			pathContext = -1;
 			int minDistance = Integer.MAX_VALUE;
 			for (int i = 0; i < paths.size(); i++) {
-				for (ArrayList<Node> currentList : paths) {
-					for (int j = 0; j < currentList.size(); j++) {
-						Node from = currentList.get(j);
-						int cumulativeDistance = getPathDistance(subPath(currentList, j));
-						for (Node to : from.getAdjacents()) {
-							int d = from.getDistance(to) + cumulativeDistance;
-							if (!wasVisited(paths, to) && d < minDistance) {
-								prevNode = from;
-								nextNode = to;
-								index = i;
-								minDistance = d;
-							}
+				ArrayList<Node> currentList = paths.get(i);
+				for (int j = 0; j < currentList.size(); j++) {
+					Node from = currentList.get(j);
+					int cumulativeDistance = getPathDistance(subPath(currentList, j));
+					for (Node to : from.getAdjacents()) {
+						int d = from.getDistance(to) + cumulativeDistance;
+						if (!wasVisited(paths, to) && d < minDistance) {
+							prevNode = from;
+							nextNode = to;
+							pathContext = i;
+							minDistance = d;
 						}
 					}
 				}
 			}
-			ArrayList<Node> target = paths.get(index);
+			ArrayList<Node> target = paths.get(pathContext);
 			if (target.get(target.size() - 1).equals(prevNode)) {
 				target.add(nextNode);
-				distances.set(index, distances.get(index) + minDistance);
+				distances.set(pathContext, distances.get(pathContext) + minDistance);
 			}
 			else {
 				ArrayList<Node> newList = subPath(target, target.indexOf(prevNode));
 				newList.add(prevNode);
 				newList.add(nextNode);
 				paths.add(newList);
-				distances.add(distances.get(index) + minDistance);
+				distances.add(getPathDistance(newList));
 			}
 		}
 		int record = Integer.MAX_VALUE;

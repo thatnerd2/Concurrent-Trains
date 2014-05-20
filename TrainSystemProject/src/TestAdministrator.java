@@ -18,13 +18,15 @@ public class TestAdministrator {
 		Node C = new Node("C");
 		Node D = new Node("D");
 		Node E = new Node("E");
+		Node F = new Node("F");
+		Node G = new Node("G");
 		MapManager.connectNodes(A, B, 2);
-		MapManager.connectNodes(B, C, 10);
-		MapManager.connectNodes(C, D, 2);
-		MapManager.connectNodes(B, D, 6);
-		MapManager.connectNodes(A, C, 7);
-		MapManager.connectNodes(A, E, 3);
-		MapManager.connectNodes(E, D, 2);
-		System.out.println("RESULT: "+PathFinder.findPath(A, D));
+		MapManager.connectNodes(B, E, 2);
+		MapManager.connectNodes(A, C, 1);
+		MapManager.connectNodes(C, E, 3);
+		MapManager.connectNodes(A, D, 3);
+		MapManager.connectNodes(D, F, 6);
+		MapManager.connectNodes(F, G, 2);
+		System.out.println("RESULT: "+PathFinder.findPath(F, B));
 	}
 }
