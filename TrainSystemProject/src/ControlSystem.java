@@ -10,7 +10,7 @@ public class ControlSystem {
 	public static void main (String[] args) {
 		ControlSystem.initialize();
 		TimeManager.initialize();
-		TestAdministrator.essentialsTest();
+		TestAdministrator.pathfindingTest();
 	}
 	
 	public static void initialize () {

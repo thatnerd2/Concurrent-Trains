@@ -3,10 +3,12 @@ import java.util.HashMap;
 
 
 public class Node {
+	private String name;
 	private ArrayList<Node> adjacentNodes;
 	private HashMap<Node, Integer> distances;
 	
-	public Node () {
+	public Node (String n) {
+		name = n;
 		adjacentNodes = new ArrayList<Node>();
 		distances = new HashMap<Node, Integer>();
 	}
@@ -25,7 +27,12 @@ public class Node {
 	public ArrayList<Node> getAdjacents() {
 		return adjacentNodes;
 	}
+	
 	public int getDistance(Node to) {
 		return distances.get(to);
+	}
+	
+	public String toString () {
+		return name;
 	}
 }
