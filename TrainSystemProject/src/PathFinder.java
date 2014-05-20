@@ -2,19 +2,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PathFinder {
-	private ArrayList<Node> trainPath;
-	
-	
 	public static ArrayList<Node> findPath (Node start, Node end) {
 		ArrayList<Integer> distances = new ArrayList<Integer>();
 		ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
+		
 		Node nextNode = start;
 		ArrayList<Node> initialPath = new ArrayList<Node>();
 		initialPath.add(nextNode);
+		
 		paths.add(initialPath);
 		distances.add(0);
-		int debugCount = 0;
-		while (debugCount < 10 && !nextNode.equals(end)) {
+		
+		while (!nextNode.equals(end)) {
 			nextNode = null;
 			Node prevNode = null;
 			int index = -1;
@@ -31,17 +30,11 @@ public class PathFinder {
 								nextNode = to;
 								index = i;
 								minDistance = d;
-								System.out.println("now min distance is: "+minDistance+" going to node: "+nextNode);
-								
 							}
 						}
 					}
 				}
 			}
-			System.out.println("Previous Node: "+prevNode);
-			System.out.println("Next Node: "+nextNode);
-			System.out.println("Min: "+minDistance);
-			
 			ArrayList<Node> target = paths.get(index);
 			if (target.get(target.size() - 1).equals(prevNode)) {
 				target.add(nextNode);
@@ -54,12 +47,6 @@ public class PathFinder {
 				paths.add(newList);
 				distances.add(distances.get(index) + minDistance);
 			}
-			System.out.println("------");
-			debugCount++;
-		}
-		
-		for (ArrayList<Node> path : paths) {
-			System.out.println(path);
 		}
 		int record = Integer.MAX_VALUE;
 		int index = -1;
