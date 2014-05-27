@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+// remember to include whether or not things need to wait
 
 public class Train {
 	private Node nodeFrom, nodeTo;
@@ -68,17 +69,5 @@ public class Train {
 	}
 	public void setArrivalTime(int arrivalTime) {
 		this.arrivalTime = arrivalTime;
-	}
-	public int getSpeed() {
-		return speed;
-	}
-	public void setSpeed(int speed) {
-		this.speed = speed;
-	}
-	public ArrayList<Node> getMyPath() {
-		return myPath;
-	}
-	public void setMyPath(ArrayList<Node> myPath) {
-		this.myPath = myPath;
 	}
 }

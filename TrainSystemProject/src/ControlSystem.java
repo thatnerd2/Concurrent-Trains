@@ -6,11 +6,17 @@ import java.util.HashMap;
 public class ControlSystem {
 	static ArrayList<Train> trains;
 	static HashMap<Train, ArrayList<Node>> paths;
+	private boolean newTrain;
 	
 	public static void main (String[] args) {
 		ControlSystem.initialize();
 		TimeManager.initialize();
 		TestAdministrator.essentialsTest();
+	}
+	
+	public static void addTrain(Train train) {
+		trains.add(train);
+		newTrain = true;
 	}
 	
 	public static void initialize () {
@@ -24,6 +30,11 @@ public class ControlSystem {
 			train.update();
 			if (train.getNodeTo() == null) {
 			}
+		}
+		if(newTrain) {
+			PathFinder.update();
+			PathFinder.optimize();
+			newTrain = false;
 		}
 	}
 	
