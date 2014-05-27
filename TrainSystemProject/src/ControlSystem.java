@@ -10,7 +10,7 @@ public class ControlSystem {
 	public static void main (String[] args) {
 		ControlSystem.initialize();
 		TimeManager.initialize();
-		TestAdministrator.pathfindingTest();
+		TestAdministrator.essentialsTest();
 	}
 	
 	public static void initialize () {
@@ -19,6 +19,7 @@ public class ControlSystem {
 	}
 	
 	public static void updateSystem () {
+		System.out.println("hello");
 		TimeManager.updateTime();
 		for (Train train : trains) {
 			train.update();
