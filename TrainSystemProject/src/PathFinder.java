@@ -27,6 +27,7 @@ public class PathFinder {
 					int cumulativeDistance = getPathDistance(subPath(currentList, j));
 					for (Node to : from.getAdjacents()) {
 						int d = from.getDistance(to) + cumulativeDistance;
+						//wasVisited should be changed to isValid
 						if (!wasVisited(paths, to) && d < minDistance) {
 							prevNode = from;
 							nextNode = to;
@@ -68,6 +69,11 @@ public class PathFinder {
 		return res;
 	}
 	
+	/* private static boolean ArrayList<Node> subPath(ArrayList<Node> source, int start, int end) {
+	 * 		return source.subList(start, end);
+	 * 	}
+	 */
+	
 	private static int getPathDistance (ArrayList<Node> list) {
 		int sum = 0;
 		for (int i = 0; i < list.size() - 1; i++) {
@@ -76,6 +82,41 @@ public class PathFinder {
 		return sum;
 	}
 	
+	/* private static boolean isValid(ArrayList<ArrayList<Node>> list, Node from, Node to, ArrayList<Node> currentPath) {
+	 * 		for(ArrayList<Node> l : list) {
+	 *			if(l.contains(to)) {
+	 *				return false;
+	 *			}
+	 *		int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath);  //figures out when the train the path is being built for arrives at the "from" node in
+	 *		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to); //figures out when the train the path is being built for arrives at the "to" location
+	 *		ArrayList<Integer> timeInTrainPath = new ArrayList<Integer>();
+	 *		for(Train train : ControlSystem.trains) {  
+	 *			if(train.getMyPath().contains(from)) {  // sees if any of the train paths contains the "from" node
+	 *				int i = train.getMyPath().indexOf(from);
+	 *				if(train.getMyPath().get(i+1).equals(to)) { // sees if the "from" node is followed by the "to" node ... can .equals be used here?
+	 * 					int timeGettingOnPath = time + train.getArrivalTime + getPathDistance(subPath(train.getMyPath(), train.getNodeTo(), to);
+	 * 					int timeLeavingPath = timeGettingOnPath + from.getDistance(to); // finds the times that each train will be on the from-to path
+	 * 					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath) || (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath)) {
+	 * 						return false; returns false if the from-to path for any train would overlap the from-to path for the path of the train being built
+	 * 					}
+	 * 				}
+	 * 
+	 * 				// the above if loop should also have a condition for .get(i-1).equals(to). don't have time to do that ATM
+	 * 			}
+	 * 		}
+	 * 	return true;
+	 * 	}
+	 */
+	
+	/* private static method overlaps(int check, int start, int end) { 
+	 * 		if(check > start && check < end) {
+	 * 			return true;
+	 * 		}
+	 * 		else {
+	 * 			return false;
+	 * 		}
+	 * }
+	 */
 	private static boolean wasVisited (ArrayList<ArrayList<Node>> list, Node n) {
 		for (ArrayList<Node> l : list) {
 			if (l.contains(n)) {
