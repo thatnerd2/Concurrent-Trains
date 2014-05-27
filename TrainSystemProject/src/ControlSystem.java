@@ -19,15 +19,12 @@ public class ControlSystem {
 	}
 	
 	public static void updateSystem () {
-		System.out.println("hello");
 		TimeManager.updateTime();
 		for (Train train : trains) {
 			train.update();
 			if (train.getNodeTo() == null) {
-				System.out.println("Arrived");
 			}
 		}
-		//needs to update paths of all trains
 	}
 	
 	public boolean isBlocked(ArrayList<Node> path) {
