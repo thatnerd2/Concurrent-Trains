@@ -69,7 +69,6 @@ public class PathFinder {
 		return res;
 	}
 	 
-	
 	private static int getPathDistance (ArrayList<Node> list) {
 		int sum = 0;
 		for (int i = 0; i < list.size() - 1; i++) {
@@ -86,4 +85,49 @@ public class PathFinder {
 		}
 		return false;
 	}
+
+	private static void optimize () {
+		int secondsToCheck = shortestPathTime(ControlSystem.trains);
+		
+		
+		
+		
+		int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath);
+		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
+		for (Train train : ControlSystem.trains) 
+		{
+			if (train.getMyPath().contains(from)) 
+			{
+				int i = train.getMyPath().indexOf(from);
+				if (train.getMyPath().get(i + 1).equals(to)) 
+				{
+					int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime() + getPathDistance(subPath(train.getMyPath(), i, i + 1));
+					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
+							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	private static int shortestPathTime (ArrayList<Train> trains) {
+		int lowestTime = Integer.MAX_VALUE;
+		for (Train t : trains) {
+			lowestTime = Math.min(lowestTime, t.getArrivalTime() + getPathDistance(t.getPath()));
+		}
+		return lowestTime;
+	}
+	
+	private static boolean overlaps(int check, int start, int end) {
+		if (check > start && check < end) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }
