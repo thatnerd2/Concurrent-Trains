@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class ControlSystem {
 	static ArrayList<Train> trains;
 	static HashMap<Train, ArrayList<Node>> paths;
-	private boolean newTrain;
+	private static boolean newTrain;
 	
 	public static void main (String[] args) {
 		ControlSystem.initialize();
@@ -28,11 +28,15 @@ public class ControlSystem {
 		TimeManager.updateTime();
 		for (Train train : trains) {
 			train.update();
-			if (train.getNodeTo() == null) {
-			}
 		}
+		
 		if(newTrain) {
-			PathFinder.update();
+			for (Train train : trains) {
+				ArrayList<Node> oldPath = train.getPath();
+				Node source = train.getNodeFrom();
+				Node destination = oldPath.get(oldPath.size() - 1);
+				train.setPath(PathFinder.findPath(source, destination));
+			}
 			PathFinder.optimize();
 			newTrain = false;
 		}

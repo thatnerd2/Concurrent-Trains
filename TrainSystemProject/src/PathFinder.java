@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class PathFinder {
@@ -88,30 +89,36 @@ public class PathFinder {
 
 	private static void optimize () {
 		int secondsToCheck = shortestPathTime(ControlSystem.trains);
+		int currentTime = 0;
 		
-		
-		
-		
-		int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath);
-		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
-		for (Train train : ControlSystem.trains) 
-		{
-			if (train.getMyPath().contains(from)) 
+		while (currentTime < secondsToCheck) {
+			/**
+			 * The idea of the algorithm:
+			 * At a certain point in time, who's AT a station?  Which trains have arrived?  Of these trains,
+			 * store their current node place that they've gotten to in conflicts...wait, how do we account for wait time?
+			 */
+			
+			HashMap<Node, Train> conflicts = new HashMap<Node, Train>();
+			
+			int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath);
+			int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
+			for (Train train : ControlSystem.trains) 
 			{
-				int i = train.getMyPath().indexOf(from);
-				if (train.getMyPath().get(i + 1).equals(to)) 
+				if (train.getMyPath().contains(from)) 
 				{
-					int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime() + getPathDistance(subPath(train.getMyPath(), i, i + 1));
-					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
-					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
-							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
+					int i = train.getMyPath().indexOf(from);
+					if (train.getMyPath().get(i + 1).equals(to)) 
 					{
-						return false;
+						int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime() + getPathDistance(subPath(train.getMyPath(), i, i + 1));
+						int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+						if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
+								|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
+						{
+						}
 					}
 				}
 			}
 		}
-		return true;
 	}
 	
 	private static int shortestPathTime (ArrayList<Train> trains) {
@@ -121,7 +128,7 @@ public class PathFinder {
 		}
 		return lowestTime;
 	}
-	// might be able to use train.isBetween instead of overlaps
+	
 	private static boolean overlaps(int check, int start, int end) {
 		if (check > start && check < end) {
 			return true;
