@@ -121,7 +121,7 @@ public class PathFinder {
 		}
 		return lowestTime;
 	}
-	
+	// might be able to use train.isBetween instead of overlaps
 	private static boolean overlaps(int check, int start, int end) {
 		if (check > start && check < end) {
 			return true;
