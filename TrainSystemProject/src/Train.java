@@ -4,19 +4,23 @@ import java.util.ArrayList;
 
 public class Train {
 	private Node nodeFrom, nodeTo;
-	private int arrivalTime, distanceFrom, speed;
+	private int arrivalTime, distanceFrom;
 	private ArrayList<Node> myPath;
+	private ArrayList<Integer> myWaitTimes;
+	
 	public Train () {}
+	
 	public Train(ArrayList<Node> path, int speed) {
 		this.myPath = path;
-		this.speed = speed;
+		this.myWaitTimes = null;
 		updateDestination();
 		this.arrivalTime = TimeManager.getCurrentTime() + nodeFrom.getDistance(nodeTo);
 		this.distanceFrom = nodeFrom.getDistance(nodeTo);
 	}
+	
 	public void update() {
 		if(nodeTo!=null) {
-			distanceFrom -= speed;
+			distanceFrom -= 1;
 			if(distanceFrom<=0) {
 				if(myPath.size()>1) {
 					updateDestination();
@@ -32,16 +36,26 @@ public class Train {
 		}
 			
 	}
+	
 	public boolean isBetween(Node node1, Node node2) {
 		if((nodeFrom == node1 || nodeTo == node1) && (nodeFrom == nodeTo || nodeTo == node2))
 			return true;
 		else
 			return false;
 	}
+	
 	public void updateDestination() {
 		nodeFrom = myPath.get(0);
 		myPath.remove(0);
 		nodeTo = myPath.get(0);
+		myWaitTimes.remove(0);
+	}
+	
+	public ArrayList<Integer> getWaitTimes() {
+		return myWaitTimes;
+	}
+	public void setWaitTimes(ArrayList<Integer> myWaitTimes) {
+		this.myWaitTimes = myWaitTimes;
 	}
 	public ArrayList<Node> getPath() {
 		return myPath;

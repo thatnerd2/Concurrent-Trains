@@ -28,12 +28,14 @@ public class PathFinder {
 					int cumulativeDistance = getPathDistance(subPath(currentList, 0, j));
 					for (Node to : from.getAdjacents()) {
 						int d = from.getDistance(to) + cumulativeDistance;
-						//wasVisited should be changed to isValid
-						if (!wasVisited(paths, to) && d < minDistance) {
+						if (isValid(currentList, from, to) && d < minDistance) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
 							minDistance = d;
+						}
+						else {
+							//need to update like normal, but also add the wait time?
 						}
 					}
 				}
@@ -78,6 +80,14 @@ public class PathFinder {
 		return sum;
 	}
 	
+	private static int getWaitTimes (ArrayList<Integer> list) {
+		int sum = 0;
+		for (int i = 0; i < list.size() - 1; i++) {
+			sum += list.get(i);
+		}
+		return sum;
+	}
+	
 	private static boolean wasVisited (ArrayList<ArrayList<Node>> list, Node n) {
 		for (ArrayList<Node> l : list) {
 			if (l.contains(n)) {
@@ -87,6 +97,40 @@ public class PathFinder {
 		return false;
 	}
 
+	private static boolean isValid(ArrayList<Node> currentPath, Node from, Node to) {
+		int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath); // + getWaitTimes(currentPath)?
+		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
+		for (Train train : ControlSystem.trains) 
+		{
+			if (train.getPath().contains(from) && train.getPath().contains(to) 
+					&& (Math.abs(train.getPath().indexOf(from))-train.getPath().indexOf(to) == 1)) 
+			{
+				int fromIndex = train.getPath().indexOf(from);
+				if(fromIndex == (train.getPath().indexOf(to)+1)) 
+				{
+					int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime()
+							+ getPathDistance(subPath(train.getPath(), 0, fromIndex - 1));
+					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
+							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
+					{
+						return false;
+					}
+				}
+				else  
+				{
+					int timeGettingToFromNode = TimeManager.getCurrentTime() + train.getArrivalTime()
+					+ getPathDistance(subPath(train.getPath(), 0, fromIndex - 1));
+					if(timeGettingToFromNode == myTimeArrivingOnPath) 
+					{
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
 	private static void optimize () {
 		int secondsToCheck = shortestPathTime(ControlSystem.trains);
 		int currentTime = 0;
@@ -104,12 +148,12 @@ public class PathFinder {
 			int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
 			for (Train train : ControlSystem.trains) 
 			{
-				if (train.getMyPath().contains(from)) 
+				if (train.getPath().contains(from)) 
 				{
-					int i = train.getMyPath().indexOf(from);
-					if (train.getMyPath().get(i + 1).equals(to)) 
+					int i = train.getPath().indexOf(from);
+					if (train.getPath().get(i + 1).equals(to)) 
 					{
-						int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime() + getPathDistance(subPath(train.getMyPath(), i, i + 1));
+						int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime() + getPathDistance(subPath(train.getPath(), i, i + 1));
 						int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
 						if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
 								|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
