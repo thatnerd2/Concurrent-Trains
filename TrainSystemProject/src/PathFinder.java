@@ -42,17 +42,17 @@ public class PathFinder {
 							minDistance = d;
 						}
 						else if (!wasVisited(paths, to) && d < minDistance && !isValid(currentList, from, to)) {
-							int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentList);
+							/*int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentList);
 							int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
 									+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
-							int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
-							minWaitTime = 
+							int timeLeavingPath = timeGettingOnPath + from.getDistance(to);*/
+							
 						}
 					}
 				}
 			}
 			ArrayList<Node> targetPath = paths.get(pathContext);
-			ArrayList<Integer> targetTimes = waitTimes.get(pathContext);
+			//ArrayList<Integer> targetTimes = waitTimes.get(pathContext);
 			if (targetPath.get(targetPath.size() - 1).equals(prevNode)) {
 				targetPath.add(nextNode);
 				distances.set(pathContext, distances.get(pathContext) + minDistance);
@@ -62,7 +62,7 @@ public class PathFinder {
 				ArrayList<Node> newList = subPath(targetPath, 0, sectionCutOff);
 				newList.add(prevNode);
 				newList.add(nextNode);
-				ArrayList<Integer> newWaitTimes = subPath(targetTimes, 0, sectionCutOff);
+				//ArrayList<Integer> newWaitTimes = subPath(targetTimes, 0, sectionCutOff);
 				//add later
 				paths.add(newList);
 				distances.add(getPathDistance(newList));
