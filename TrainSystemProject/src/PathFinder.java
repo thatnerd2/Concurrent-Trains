@@ -6,6 +6,7 @@ public class PathFinder {
 	public static ArrayList<Node> findPath (Node start, Node end) {
 		ArrayList<Integer> distances = new ArrayList<Integer>();
 		ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
+		ArrayList<ArrayList<Integer>> waitTimes = new ArrayList<ArrayList<Integer>>();
 		
 		Node nextNode = start;
 		Node prevNode = start;
@@ -21,34 +22,48 @@ public class PathFinder {
 			prevNode = null;
 			pathContext = -1;
 			int minDistance = Integer.MAX_VALUE;
-			for (int i = 0; i < paths.size(); i++) {
+			int minWaitTime = 0;
+			for (int i = 0; i < paths.size(); i++) 
+			{
 				ArrayList<Node> currentList = paths.get(i);
-				for (int j = 0; j < currentList.size(); j++) {
+				for (int j = 0; j < currentList.size(); j++) 
+				{
 					Node from = currentList.get(j);
 					int cumulativeDistance = getPathDistance(subPath(currentList, 0, j));
-					for (Node to : from.getAdjacents()) {
+					
+					for (Node to : from.getAdjacents()) 
+					{
 						int d = from.getDistance(to) + cumulativeDistance;
-						if (isValid(currentList, from, to) && d < minDistance) {
+						
+						if (!wasVisited(paths, to) && d < minDistance && isValid(currentList, from, to)) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
 							minDistance = d;
 						}
-						else {
-							//need to update like normal, but also add the wait time?
+						else if (!wasVisited(paths, to) && d < minDistance && !isValid(currentList, from, to)) {
+							int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentList);
+							int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
+									+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
+							int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+							minWaitTime = 
 						}
 					}
 				}
 			}
-			ArrayList<Node> target = paths.get(pathContext);
-			if (target.get(target.size() - 1).equals(prevNode)) {
-				target.add(nextNode);
+			ArrayList<Node> targetPath = paths.get(pathContext);
+			ArrayList<Integer> targetTimes = waitTimes.get(pathContext);
+			if (targetPath.get(targetPath.size() - 1).equals(prevNode)) {
+				targetPath.add(nextNode);
 				distances.set(pathContext, distances.get(pathContext) + minDistance);
 			}
 			else {
-				ArrayList<Node> newList = subPath(target, 0, target.indexOf(prevNode));
+				int sectionCutOff = targetPath.indexOf(prevNode);
+				ArrayList<Node> newList = subPath(targetPath, 0, sectionCutOff);
 				newList.add(prevNode);
 				newList.add(nextNode);
+				ArrayList<Integer> newWaitTimes = subPath(targetTimes, 0, sectionCutOff);
+				//add later
 				paths.add(newList);
 				distances.add(getPathDistance(newList));
 			}
@@ -62,12 +77,13 @@ public class PathFinder {
 				index = i;
 			}
 		}
+		
 		return paths.get(index);
 	}
 	
-	private static ArrayList<Node> subPath (ArrayList<Node> source, int start, int to) {
-		List<Node> listView = source.subList(start, to);
-		ArrayList<Node> res = new ArrayList<Node>();
+	private static <T> ArrayList<T> subPath (ArrayList<T> source, int start, int to) {
+		List<T> listView = source.subList(start, to);
+		ArrayList<T> res = new ArrayList<T>();
 		res.addAll(listView);
 		return res;
 	}
@@ -98,7 +114,8 @@ public class PathFinder {
 	}
 
 	private static boolean isValid(ArrayList<Node> currentPath, Node from, Node to) {
-		int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath); // + getWaitTimes(currentPath)?
+		
+		int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentPath); // + getWaitTimes(currentPath)?
 		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
 		for (Train train : ControlSystem.trains) 
 		{
@@ -108,8 +125,8 @@ public class PathFinder {
 				int fromIndex = train.getPath().indexOf(from);
 				if(fromIndex == (train.getPath().indexOf(to)+1)) 
 				{
-					int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime()
-							+ getPathDistance(subPath(train.getPath(), 0, fromIndex - 1));
+					int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
+							+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
 					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
 					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
 							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
@@ -119,8 +136,8 @@ public class PathFinder {
 				}
 				else  
 				{
-					int timeGettingToFromNode = TimeManager.getCurrentTime() + train.getArrivalTime()
-					+ getPathDistance(subPath(train.getPath(), 0, fromIndex - 1));
+					int timeGettingToFromNode = ControlSystem.currentTime + train.getArrivalTime()
+					+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
 						return false;
@@ -128,49 +145,8 @@ public class PathFinder {
 				}
 			}
 		}
+		System.out.println("Is valid returned true");
 		return true;
-	}
-	
-	private static void optimize () {
-		int secondsToCheck = shortestPathTime(ControlSystem.trains);
-		int currentTime = 0;
-		
-		while (currentTime < secondsToCheck) {
-			/**
-			 * The idea of the algorithm:
-			 * At a certain point in time, who's AT a station?  Which trains have arrived?  Of these trains,
-			 * store their current node place that they've gotten to in conflicts...wait, how do we account for wait time?
-			 */
-			
-			HashMap<Node, Train> conflicts = new HashMap<Node, Train>();
-			
-			int myTimeArrivingOnPath = TimeManager.getCurrentTime() + getPathDistance(currentPath);
-			int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
-			for (Train train : ControlSystem.trains) 
-			{
-				if (train.getPath().contains(from)) 
-				{
-					int i = train.getPath().indexOf(from);
-					if (train.getPath().get(i + 1).equals(to)) 
-					{
-						int timeGettingOnPath = TimeManager.getCurrentTime() + train.getArrivalTime() + getPathDistance(subPath(train.getPath(), i, i + 1));
-						int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
-						if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
-								|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
-						{
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private static int shortestPathTime (ArrayList<Train> trains) {
-		int lowestTime = Integer.MAX_VALUE;
-		for (Train t : trains) {
-			lowestTime = Math.min(lowestTime, t.getArrivalTime() + getPathDistance(t.getPath()));
-		}
-		return lowestTime;
 	}
 	
 	private static boolean overlaps(int check, int start, int end) {

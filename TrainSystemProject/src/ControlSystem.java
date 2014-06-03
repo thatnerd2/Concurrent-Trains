@@ -6,39 +6,50 @@ import java.util.HashMap;
 public class ControlSystem {
 	static ArrayList<Train> trains;
 	static HashMap<Train, ArrayList<Node>> paths;
+	static int currentTime;
 	private static boolean newTrain;
 	
-	public static void main (String[] args) {
-		ControlSystem.initialize();
-		TimeManager.initialize();
-		TestAdministrator.essentialsTest();
+	public static void startSimulation () {
+		updateSystem();
 	}
 	
-	public static void addTrain(Train train) {
-		trains.add(train);
+	public static Train buildTrain(Node start, Node destination) {
+		ArrayList<Node> path = PathFinder.findPath(start, destination);
+		Train t = new Train(path, 1);
+		trains.add(t);
 		newTrain = true;
+		return t;
 	}
 	
 	public static void initialize () {
 		trains = new ArrayList<Train>();
 		paths = new HashMap<Train, ArrayList<Node>>();
+		currentTime = 0;
 	}
 	
 	public static void updateSystem () {
-		TimeManager.updateTime();
-		for (Train train : trains) {
-			train.update();
-		}
-		
-		if(newTrain) {
-			for (Train train : trains) {
-				ArrayList<Node> oldPath = train.getPath();
-				Node source = train.getNodeFrom();
-				Node destination = oldPath.get(oldPath.size() - 1);
-				train.setPath(PathFinder.findPath(source, destination));
+		while (true) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			PathFinder.optimize();
-			newTrain = false;
+			currentTime++;
+			for (Train train : trains) {
+				train.update();
+			}
+			
+			if(newTrain) {
+				for (Train train : trains) {
+					ArrayList<Node> oldPath = train.getPath();
+					Node source = train.getNodeFrom();
+					Node destination = oldPath.get(oldPath.size() - 1);
+					train.setPath(PathFinder.findPath(source, destination));
+				}
+				//PathFinder.optimize();
+				newTrain = false;
+			}
 		}
 	}
 	
