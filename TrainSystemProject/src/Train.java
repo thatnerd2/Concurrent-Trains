@@ -18,7 +18,7 @@ public class Train {
 		this.arrivalTime = ControlSystem.currentTime + nodeFrom.getDistance(nodeTo);
 		this.distanceFrom = nodeFrom.getDistance(nodeTo);
 	}
-	
+	//get proportion to samir, from node 
 	public void update() {
 		if(nodeTo!=null) {
 			distanceFrom -= 1;

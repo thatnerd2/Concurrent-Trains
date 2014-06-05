@@ -4,18 +4,18 @@ import java.util.List;
 
 public class PathFinder {
 	public static ArrayList<Node> findPath (Node start, Node end) {
-		ArrayList<Integer> distances = new ArrayList<Integer>();
-		ArrayList<ArrayList<Node>> paths = new ArrayList<ArrayList<Node>>();
-		ArrayList<ArrayList<Integer>> waitTimes = new ArrayList<ArrayList<Integer>>();
-		
+		ArrayList<Path> paths = new ArrayList<Path>();
 		Node nextNode = start;
 		Node prevNode = start;
-		int pathContext = -1;
-		ArrayList<Node> initialPath = new ArrayList<Node>();
-		initialPath.add(prevNode);
 		
-		paths.add(initialPath);
-		distances.add(0);
+		int pathContext = -1;
+		ArrayList<Node> initNodes = new ArrayList<Node>();
+		ArrayList<Integer> initWaitTimes = new ArrayList<Integer>();
+		initNodes.add(prevNode);
+		initWaitTimes.add(0);
+		Path path = new Path(initNodes, initWaitTimes);
+		
+		paths.add(path);
 		
 		while (!nextNode.equals(end)) {
 			nextNode = null;
@@ -25,37 +25,57 @@ public class PathFinder {
 			int minWaitTime = 0;
 			for (int i = 0; i < paths.size(); i++) 
 			{
-				ArrayList<Node> currentList = paths.get(i);
-				for (int j = 0; j < currentList.size(); j++) 
+				/**
+				 * No calculations are done, just put
+				 */
+				ArrayList<Node> nodes = paths.get(i).getNodes();
+				ArrayList<Integer> waitTimes = paths.get(i).getWaitTimes();
+				
+				for (int j = 0; j < nodes.size(); j++) 
 				{
-					Node from = currentList.get(j);
-					int cumulativeDistance = getPathDistance(subPath(currentList, 0, j));
+					Node from = nodes.get(j);
+					int cumulativeDistance = paths.get(i).computePathSubsetTime(0, j);
 					
 					for (Node to : from.getAdjacents()) 
 					{
 						int d = from.getDistance(to) + cumulativeDistance;
 						
-						if (!wasVisited(paths, to) && d < minDistance && isValid(currentList, from, to)) {
+						if (!wasVisited(paths, to) && d < minDistance && isValid(nodes, from, to)) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
 							minDistance = d;
+							minWaitTime = 0;
 						}
-						else if (!wasVisited(paths, to) && d < minDistance && !isValid(currentList, from, to)) {
+						else if (!wasVisited(paths, to) && d < minDistance && !isValid(nodes, from, to)) {
 							/*int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentList);
 							int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
 									+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
-							int timeLeavingPath = timeGettingOnPath + from.getDistance(to);*/
+							int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+							minWaitTimeAtCurrentNode = timeLeavingPath - myTimeArrivingOnPath;*/
 							
 						}
 					}
 				}
 			}
-			ArrayList<Node> targetPath = paths.get(pathContext);
+			
+			Path pathToEdit = paths.get(pathContext);
+			ArrayList<Node> nodesToEdit = pathToEdit.getNodes();
+			ArrayList<Integer> timesToEdit = pathToEdit.getWaitTimes();
+			if (nodesToEdit.get(nodesToEdit.size() - 1).equals(prevNode)) {
+				/**
+				 * The node we've selected will be added to the end of this path.
+				 * No new branching path will be created.
+				 */
+				nodesToEdit.add(nextNode);
+				timesToEdit.add(minWaitTime);
+				pathToEdit.computeDistance();
+			}
+			
 			//ArrayList<Integer> targetTimes = waitTimes.get(pathContext);
-			if (targetPath.get(targetPath.size() - 1).equals(prevNode)) {
-				targetPath.add(nextNode);
-				distances.set(pathContext, distances.get(pathContext) + minDistance);
+			/*if (pathToEdit.get(pathToEdit.size() - 1).equals(prevNode)) {
+				pathToEdit.add(nextNode);
+				.set(pathContext, distances.get(pathContext) + minDistance);
 			}
 			else {
 				int sectionCutOff = targetPath.indexOf(prevNode);
@@ -66,7 +86,7 @@ public class PathFinder {
 				//add later
 				paths.add(newList);
 				distances.add(getPathDistance(newList));
-			}
+			}*/
 		}
 		int record = Integer.MAX_VALUE;
 		int index = -1;
@@ -96,17 +116,18 @@ public class PathFinder {
 		return sum;
 	}
 	
-	private static int getWaitTimes (ArrayList<Integer> list) {
-		int sum = 0;
-		for (int i = 0; i < list.size() - 1; i++) {
-			sum += list.get(i);
+	private static int getTotalTime(ArrayList<Node> path, ArrayList<Integer> waitTimes) {
+		int total = 0;
+		for(int i = 0; i < path.size() - 1; i++) {
+			total += path.get(i).getDistance(path.get(i+1));
+			total += waitTimes.get(i);
 		}
-		return sum;
+		return total;
 	}
 	
-	private static boolean wasVisited (ArrayList<ArrayList<Node>> list, Node n) {
-		for (ArrayList<Node> l : list) {
-			if (l.contains(n)) {
+	private static boolean wasVisited (ArrayList<Path> allPaths, Node n) {
+		for (int i = 0; i < allPaths.size(); i++) {
+			if (allPaths.get(i).getNodes().contains(n)) {
 				return true;
 			}
 		}
