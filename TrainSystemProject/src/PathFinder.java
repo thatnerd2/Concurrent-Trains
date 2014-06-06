@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PathFinder {
-	public static ArrayList<Node> findPath (Node start, Node end) {
+	public static Path findPath (Node start, Node end) {
 		ArrayList<Path> paths = new ArrayList<Path>();
 		Node nextNode = start;
 		Node prevNode = start;
@@ -40,20 +40,19 @@ public class PathFinder {
 					{
 						int d = from.getDistance(to) + cumulativeDistance;
 						
-						if (!wasVisited(paths, to) && d < minDistance && isValid(nodes, from, to)) {
+						if (!wasVisited(paths, to) && d < minDistance && isValid(nodes, waitTimes, from, to)) {
+							prevNode = from;
+							nextNode = to;
+							pathContext = i;
+							minDistance = d; // do these pertain to minTravelTime now?
+							minWaitTime = 0;
+						}
+						else if (!wasVisited(paths, to) && d < minDistance && !isValid(nodes, waitTimes, from, to)) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
 							minDistance = d;
-							minWaitTime = 0;
-						}
-						else if (!wasVisited(paths, to) && d < minDistance && !isValid(nodes, from, to)) {
-							/*int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentList);
-							int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
-									+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
-							int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
-							minWaitTimeAtCurrentNode = timeLeavingPath - myTimeArrivingOnPath;*/
-							
+							minWaitTime = minWaitTime(nodes, waitTimes, from, to);
 						}
 					}
 				}
@@ -133,10 +132,56 @@ public class PathFinder {
 		}
 		return false;
 	}
-
-	private static boolean isValid(ArrayList<Node> currentPath, Node from, Node to) {
+	
+	private static int minWaitTime(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
+		int minWaitTime = 0;
+		int thisWaitTime = 0;
+		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes); // + getWaitTimes(currentPath)?
+		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
+		for (Train train : ControlSystem.trains) 
+		{
+			if (train.getPath().contains(from) && train.getPath().contains(to) 
+					&& (Math.abs(train.getPath().indexOf(from))-train.getPath().indexOf(to) == 1)) 
+			{
+				thisWaitTime = 0;
+				int fromIndex = train.getPath().indexOf(from);
+				if(fromIndex == (train.getPath().indexOf(to)+1)) 
+				{
+					int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
+						 + getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
+					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
+							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
+					{
+						if(myTimeArrivingOnPath < timeGettingOnPath) {
+							thisWaitTime = 0; //ensures that the first train to arrive at a collision-path will be allowed to go first
+											//i believe that if a train's path is modified after a previous train's path has already
+											//been optimized, this may lead to crashes. I can explain it more clearly in person
+						}
+						else {
+							thisWaitTime = timeLeavingPath - myTimeArrivingOnPath;
+						}
+					}
+				}
+				else  
+				{
+					int timeGettingToFromNode = ControlSystem.currentTime + train.getArrivalTime()
+					+ getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
+					if(timeGettingToFromNode == myTimeArrivingOnPath) 
+					{
+						thisWaitTime = 1;
+					}
+				}
+				if(minWaitTime < thisWaitTime) {
+					minWaitTime = thisWaitTime;
+				}
+			}
+		}
+		return minWaitTime;
+	}
+	private static boolean isValid(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
 		
-		int myTimeArrivingOnPath = ControlSystem.currentTime + getPathDistance(currentPath); // + getWaitTimes(currentPath)?
+		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes); // + getWaitTimes(currentPath)?
 		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
 		for (Train train : ControlSystem.trains) 
 		{
@@ -147,7 +192,7 @@ public class PathFinder {
 				if(fromIndex == (train.getPath().indexOf(to)+1)) 
 				{
 					int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
-							+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
+						 + getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
 					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
 					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
 							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
@@ -158,7 +203,7 @@ public class PathFinder {
 				else  
 				{
 					int timeGettingToFromNode = ControlSystem.currentTime + train.getArrivalTime()
-					+ getPathDistance(subPath(train.getPath(), 1, fromIndex));
+					+ getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
 						return false;
@@ -166,7 +211,7 @@ public class PathFinder {
 				}
 			}
 		}
-		System.out.println("Is valid returned true");
+		//System.out.println("Is valid returned true");
 		return true;
 	}
 	
