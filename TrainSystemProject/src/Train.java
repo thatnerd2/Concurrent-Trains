@@ -5,16 +5,13 @@ import java.util.ArrayList;
 public class Train {
 	private Node nodeFrom, nodeTo;
 	private int arrivalTime, distanceFrom;
-	private ArrayList<Node> myPath;
-	private ArrayList<Integer> myWaitTimes;
-	
+	private Path myPath;
 	public Train () {}
 	
-	public Train(ArrayList<Node> path, int speed) {
+	public Train (Path path, int speed) {
 		this.myPath = path;
-		this.myWaitTimes = null;
-		nodeFrom = path.get(0);
-		nodeTo = path.get(1);
+		nodeFrom = path.getNodes().get(0);
+		nodeTo = path.getNodes().get(1);
 		this.arrivalTime = ControlSystem.currentTime + nodeFrom.getDistance(nodeTo);
 		this.distanceFrom = nodeFrom.getDistance(nodeTo);
 	}
@@ -23,12 +20,12 @@ public class Train {
 		if(nodeTo!=null) {
 			distanceFrom -= 1;
 			if(distanceFrom<=0) {
-				if(myPath.size()>2) {
+				if(myPath.getNodes().size()>2) {
 					updateDestination();
 				}
 				else {
-					myPath.remove(0);
-					nodeFrom = myPath.get(0);
+					myPath.getNodes().remove(0);
+					nodeFrom = myPath.getNodes().get(0);
 					nodeTo = null;
 				}
 			}
@@ -43,42 +40,54 @@ public class Train {
 	}
 	
 	public void updateDestination() {
-		nodeFrom = myPath.get(1);
-		myPath.remove(0);
-		nodeTo = myPath.get(1);
+		ArrayList<Node> nodes = myPath.getNodes();
+		
+		nodeFrom = nodes.get(1);
+		nodes.remove(0);
+		nodeTo = nodes.get(1);
 		//myWaitTimes.remove(0);
 	}
 	
 	public ArrayList<Integer> getWaitTimes() {
-		return myWaitTimes;
+		return myPath.getWaitTimes();
 	}
+	
 	public void setWaitTimes(ArrayList<Integer> myWaitTimes) {
-		this.myWaitTimes = myWaitTimes;
+		myPath.setWaitTimes(myWaitTimes);
 	}
-	public ArrayList<Node> getPath() {
+	
+	public Path getPath() {
 		return myPath;
 	}
-	public void setPath(ArrayList<Node> myPath) {
+	
+	public void setPath(Path myPath) {
 		this.myPath = myPath;
 	}
+	
 	public int getDistanceFrom() {
 		return distanceFrom;
 	}
+	
 	public Node getNodeFrom() {
 		return nodeFrom;
 	}
+	
 	public void setNodeFrom(Node nodeFrom) {
 		this.nodeFrom = nodeFrom;
 	}
+	
 	public Node getNodeTo() {
 		return nodeTo;
 	}
+	
 	public void setNodeTo(Node nodeTo) {
 		this.nodeTo = nodeTo;
 	}
+	
 	public int getArrivalTime() {
 		return arrivalTime;
 	}
+	
 	public void setArrivalTime(int arrivalTime) {
 		this.arrivalTime = arrivalTime;
 	}

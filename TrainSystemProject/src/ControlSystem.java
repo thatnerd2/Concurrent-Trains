@@ -14,7 +14,7 @@ public class ControlSystem {
 	}
 	
 	public static Train buildTrain(Node start, Node destination) {
-		ArrayList<Node> path = PathFinder.findPath(start, destination);
+		Path path = PathFinder.findPath(start, destination);
 		Train t = new Train(path, 1);
 		trains.add(t);
 		newTrain = true;
@@ -42,7 +42,7 @@ public class ControlSystem {
 			
 			if(newTrain) {
 				for (Train train : trains) {
-					ArrayList<Node> oldPath = train.getPath();
+					ArrayList<Node> oldPath = train.getPath().getNodes();
 					Node source = train.getNodeFrom();
 					Node destination = oldPath.get(oldPath.size() - 1);
 					train.setPath(PathFinder.findPath(source, destination));

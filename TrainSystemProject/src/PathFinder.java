@@ -14,48 +14,60 @@ public class PathFinder {
 		initNodes.add(prevNode);
 		initWaitTimes.add(0);
 		Path path = new Path(initNodes, initWaitTimes);
-		
 		paths.add(path);
 		
+		System.out.println("BEGINNING THE ALGORITHM");
 		while (!nextNode.equals(end)) {
 			nextNode = null;
 			prevNode = null;
 			pathContext = -1;
-			int minDistance = Integer.MAX_VALUE;
-			int minWaitTime = 0;
+			int recordPathMinTime = Integer.MAX_VALUE;
+			int waitTimeForRecord = 0;
 			for (int i = 0; i < paths.size(); i++) 
 			{
 				/**
-				 * No calculations are done, just put
+				 * No calculations are done, just initialized
 				 */
 				ArrayList<Node> nodes = paths.get(i).getNodes();
 				ArrayList<Integer> waitTimes = paths.get(i).getWaitTimes();
 				
 				for (int j = 0; j < nodes.size(); j++) 
 				{
+					/**
+					 * Check a node.  Compute the path time all the way up to that node and then start
+					 * checking it's neighbors to compare possible times with the recordTotalMinTime
+					 */
 					Node from = nodes.get(j);
-					int cumulativeDistance = paths.get(i).computePathSubsetTime(0, j);
+					int cumulativeTime = paths.get(i).computePathSubsetTime(0, j);
 					
 					for (Node to : from.getAdjacents()) 
 					{
-						int d = from.getDistance(to) + cumulativeDistance;
+						/**
+						 * Calculate the total time required for this **prospective** branch, ignoring wait time.
+						 */
+						int thisTotalTime = from.getDistance(to) + cumulativeTime;
 						
-						if (!wasVisited(paths, to) && d < minDistance && isValid(nodes, waitTimes, from, to)) {
+						if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
+								&& isValid(nodes, waitTimes, from, to)) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
-							minDistance = d; // do these pertain to minTravelTime now?
-							minWaitTime = 0;
+							recordPathMinTime = thisTotalTime;
+							waitTimeForRecord = 0;
 						}
-						else if (!wasVisited(paths, to) && d < minDistance && !isValid(nodes, waitTimes, from, to)) {
+						else if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
+								&& !isValid(nodes, waitTimes, from, to)) {
+							System.out.println("got into the experimental section");
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
-							minDistance = d;
-							minWaitTime = minWaitTime(nodes, waitTimes, from, to);
+							recordPathMinTime = thisTotalTime;
+							waitTimeForRecord = minWaitTime(nodes, waitTimes, from, to);
 						}
 					}
 				}
+				System.out.println(paths);
+				System.out.println("---------------");
 			}
 			
 			Path pathToEdit = paths.get(pathContext);
@@ -67,10 +79,23 @@ public class PathFinder {
 				 * No new branching path will be created.
 				 */
 				nodesToEdit.add(nextNode);
-				timesToEdit.add(minWaitTime);
-				pathToEdit.computeDistance();
+				timesToEdit.add(waitTimeForRecord);
+				pathToEdit.computeTotalTime();
 			}
-			
+			else {
+				/**
+				 * Branch off, create a new path and add it to the paths list.
+				 */
+				int cutOff = nodesToEdit.indexOf(prevNode);
+				Path branchingPath = pathToEdit.getPathSubset(0, cutOff);
+				ArrayList<Node> branchNodes = branchingPath.getNodes();
+				ArrayList<Integer> branchWaitTimes = branchingPath.getWaitTimes();
+				branchNodes.add(nextNode);
+				branchWaitTimes.add(timesToEdit.get(nodesToEdit.indexOf(prevNode)));
+				branchWaitTimes.add(waitTimeForRecord);
+				paths.add(branchingPath);
+				
+			}
 			//ArrayList<Integer> targetTimes = waitTimes.get(pathContext);
 			/*if (pathToEdit.get(pathToEdit.size() - 1).equals(prevNode)) {
 				pathToEdit.add(nextNode);
@@ -87,32 +112,26 @@ public class PathFinder {
 				distances.add(getPathDistance(newList));
 			}*/
 		}
-		int record = Integer.MAX_VALUE;
+		
+		/*int record = Integer.MAX_VALUE;
 		int index = -1;
-		for (int i = 0; i < distances.size(); i++) {
-			int candidate = distances.get(i);
+		for (int i = 0; i < paths.size(); i++) {
+			int candidate = paths.get(i);
 			if (candidate < record && paths.get(i).contains(end)) {
 				record = candidate;
 				index = i;
 			}
-		}
+		}*/
 		
-		return paths.get(index);
+		return paths.get(pathContext);
 	}
 	
+	@Deprecated
 	private static <T> ArrayList<T> subPath (ArrayList<T> source, int start, int to) {
 		List<T> listView = source.subList(start, to);
 		ArrayList<T> res = new ArrayList<T>();
 		res.addAll(listView);
 		return res;
-	}
-	 
-	private static int getPathDistance (ArrayList<Node> list) {
-		int sum = 0;
-		for (int i = 0; i < list.size() - 1; i++) {
-			sum += list.get(i).getDistance(list.get(i + 1));
-		}
-		return sum;
 	}
 	
 	private static int getTotalTime(ArrayList<Node> path, ArrayList<Integer> waitTimes) {
@@ -140,16 +159,21 @@ public class PathFinder {
 		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
 		for (Train train : ControlSystem.trains) 
 		{
-			if (train.getPath().contains(from) && train.getPath().contains(to) 
-					&& (Math.abs(train.getPath().indexOf(from))-train.getPath().indexOf(to) == 1)) 
+			Path currentPath = train.getPath();
+			ArrayList<Node> currentPathNodes = currentPath.getNodes();
+			
+			if (currentPathNodes.contains(from) && currentPathNodes.contains(to) 
+					&& (Math.abs(currentPathNodes.indexOf(from)) - currentPathNodes.indexOf(to) == 1)) 
 			{
 				thisWaitTime = 0;
-				int fromIndex = train.getPath().indexOf(from);
-				if(fromIndex == (train.getPath().indexOf(to)+1)) 
+				int fromIndex = currentPathNodes.indexOf(from);
+				Path subsetToFromIndex = currentPath.getPathSubset(1, fromIndex);
+				
+				if (fromIndex == currentPathNodes.indexOf(to) + 1) 
 				{
-					int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
-						 + getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
+					int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime() + subsetToFromIndex.totalTime;
 					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+					
 					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
 							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
 					{
@@ -165,8 +189,10 @@ public class PathFinder {
 				}
 				else  
 				{
-					int timeGettingToFromNode = ControlSystem.currentTime + train.getArrivalTime()
-					+ getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
+					int timeGettingToFromNode = ControlSystem.currentTime + 
+												train.getArrivalTime() + 
+												subsetToFromIndex.totalTime;
+					
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
 						thisWaitTime = 1;
@@ -179,21 +205,30 @@ public class PathFinder {
 		}
 		return minWaitTime;
 	}
+	
 	private static boolean isValid(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
 		
 		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes); // + getWaitTimes(currentPath)?
 		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
 		for (Train train : ControlSystem.trains) 
 		{
-			if (train.getPath().contains(from) && train.getPath().contains(to) 
-					&& (Math.abs(train.getPath().indexOf(from))-train.getPath().indexOf(to) == 1)) 
+			Path currentPath = train.getPath();
+			ArrayList<Node> currentPathNodes = currentPath.getNodes();
+			
+			if (currentPathNodes.contains(from) && currentPathNodes.contains(to) 
+					&& (Math.abs(currentPathNodes.indexOf(from)) - currentPathNodes.indexOf(to) == 1)) 
 			{
-				int fromIndex = train.getPath().indexOf(from);
-				if(fromIndex == (train.getPath().indexOf(to)+1)) 
+				int fromIndex = currentPathNodes.indexOf(from);
+				Path subsetToFromIndex = currentPath.getPathSubset(1, fromIndex);
+				
+				if (fromIndex == currentPathNodes.indexOf(to) + 1) 
 				{
-					int timeGettingOnPath = ControlSystem.currentTime + train.getArrivalTime()
-						 + getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
+					int timeGettingOnPath = ControlSystem.currentTime + 
+											train.getArrivalTime() + 
+											subsetToFromIndex.totalTime;
+					
 					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
+					
 					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
 							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
 					{
@@ -202,8 +237,9 @@ public class PathFinder {
 				}
 				else  
 				{
-					int timeGettingToFromNode = ControlSystem.currentTime + train.getArrivalTime()
-					+ getTotalTime(subPath(train.getPath(), 1, fromIndex), subPath(train.getWaitTimes(), 1, fromIndex));
+					int timeGettingToFromNode = ControlSystem.currentTime + 
+												train.getArrivalTime() + 
+												subsetToFromIndex.totalTime;
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
 						return false;
