@@ -63,7 +63,6 @@ public class PathFinder {
 					}
 				}
 			}
-			
 			Path pathToEdit = paths.get(pathContext);
 			ArrayList<Node> nodesToEdit = pathToEdit.getNodes();
 			ArrayList<Integer> timesToEdit = pathToEdit.getWaitTimes();
@@ -85,9 +84,9 @@ public class PathFinder {
 				ArrayList<Node> branchNodes = branchingPath.getNodes();
 				ArrayList<Integer> branchWaitTimes = branchingPath.getWaitTimes();
 				branchNodes.add(nextNode);
-				branchWaitTimes.add(timesToEdit.get(nodesToEdit.indexOf(prevNode)));
 				branchWaitTimes.add(waitTimeForRecord);
 				paths.add(branchingPath);
+				pathContext = paths.size() - 1;
 			}
 		}
 		

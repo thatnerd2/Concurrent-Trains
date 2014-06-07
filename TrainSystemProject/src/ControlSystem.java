@@ -15,7 +15,7 @@ public class ControlSystem {
 	
 	public static Train buildTrain(Node start, Node destination) {
 		Path path = PathFinder.findPath(start, destination);
-		Train t = new Train(path, 1);
+		Train t = new Train(path);
 		trains.add(t);
 		newTrain = true;
 		return t;
@@ -51,6 +51,7 @@ public class ControlSystem {
 				//PathFinder.optimize();
 				newTrain = false;
 			}
+			break;
 		}
 	}
 	

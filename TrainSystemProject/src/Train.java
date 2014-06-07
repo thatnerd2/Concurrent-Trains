@@ -8,7 +8,7 @@ public class Train {
 	private Path myPath;
 	public Train () {}
 	
-	public Train (Path path, int speed) {
+	public Train (Path path) {
 		this.myPath = path;
 		nodeFrom = path.getNodes().get(0);
 		nodeTo = path.getNodes().get(1);
