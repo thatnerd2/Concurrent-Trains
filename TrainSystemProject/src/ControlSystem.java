@@ -41,6 +41,7 @@ public class ControlSystem {
 			}
 			
 			if(newTrain) {
+				System.out.println("Computing new paths because new trains were sensed.");
 				for (Train train : trains) {
 					ArrayList<Node> oldPath = train.getPath().getNodes();
 					Node source = train.getNodeFrom();

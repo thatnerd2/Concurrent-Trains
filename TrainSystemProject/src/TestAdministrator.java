@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 
 
 public class TestAdministrator {
@@ -14,11 +13,11 @@ public class TestAdministrator {
 		Node B = new Node("B");
 		Node C = new Node("C");
 		Node D = new Node("D");
-		MapManager.connectNodes(A, B, 2);
+		MapManager.connectNodes(A, B, 43);
 		MapManager.connectNodes(B, C, 1);
 		MapManager.connectNodes(A, C, 7);
 		MapManager.connectNodes(C, D, 2);
-		MapManager.connectNodes(B, D, 3);
+		MapManager.connectNodes(B, D, 6);
 		Train t1 = ControlSystem.buildTrain(A, D);
 		System.out.println("T1: "+t1.getPath());
 		Train t2 = ControlSystem.buildTrain(D, A);

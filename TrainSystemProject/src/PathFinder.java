@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class PathFinder {
 	public static Path findPath (Node start, Node end) {
@@ -16,7 +14,6 @@ public class PathFinder {
 		Path path = new Path(initNodes, initWaitTimes);
 		paths.add(path);
 		
-		System.out.println("BEGINNING THE ALGORITHM");
 		while (!nextNode.equals(end)) {
 			nextNode = null;
 			prevNode = null;
@@ -57,7 +54,6 @@ public class PathFinder {
 						}
 						else if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
 								&& !isValid(nodes, waitTimes, from, to)) {
-							System.out.println("got into the experimental section");
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
@@ -66,8 +62,6 @@ public class PathFinder {
 						}
 					}
 				}
-				System.out.println(paths);
-				System.out.println("---------------");
 			}
 			
 			Path pathToEdit = paths.get(pathContext);
@@ -94,44 +88,10 @@ public class PathFinder {
 				branchWaitTimes.add(timesToEdit.get(nodesToEdit.indexOf(prevNode)));
 				branchWaitTimes.add(waitTimeForRecord);
 				paths.add(branchingPath);
-				
 			}
-			//ArrayList<Integer> targetTimes = waitTimes.get(pathContext);
-			/*if (pathToEdit.get(pathToEdit.size() - 1).equals(prevNode)) {
-				pathToEdit.add(nextNode);
-				.set(pathContext, distances.get(pathContext) + minDistance);
-			}
-			else {
-				int sectionCutOff = targetPath.indexOf(prevNode);
-				ArrayList<Node> newList = subPath(targetPath, 0, sectionCutOff);
-				newList.add(prevNode);
-				newList.add(nextNode);
-				//ArrayList<Integer> newWaitTimes = subPath(targetTimes, 0, sectionCutOff);
-				//add later
-				paths.add(newList);
-				distances.add(getPathDistance(newList));
-			}*/
 		}
 		
-		/*int record = Integer.MAX_VALUE;
-		int index = -1;
-		for (int i = 0; i < paths.size(); i++) {
-			int candidate = paths.get(i);
-			if (candidate < record && paths.get(i).contains(end)) {
-				record = candidate;
-				index = i;
-			}
-		}*/
-		
 		return paths.get(pathContext);
-	}
-	
-	@Deprecated
-	private static <T> ArrayList<T> subPath (ArrayList<T> source, int start, int to) {
-		List<T> listView = source.subList(start, to);
-		ArrayList<T> res = new ArrayList<T>();
-		res.addAll(listView);
-		return res;
 	}
 	
 	private static int getTotalTime(ArrayList<Node> path, ArrayList<Integer> waitTimes) {

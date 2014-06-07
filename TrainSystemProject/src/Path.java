@@ -83,6 +83,6 @@ public class Path {
 	}
 	
 	public String toString () {
-		return nodes.toString();
+		return nodes.toString()+" "+waitTimes.toString();
 	}
 }
