@@ -5,8 +5,8 @@ public class PathFinder {
 		ArrayList<Path> paths = new ArrayList<Path>();
 		Node nextNode = start;
 		Node prevNode = start;
-		
 		int pathContext = -1;
+		//boolean hasInitWaitTimeBeenRemoved = false;
 		ArrayList<Node> initNodes = new ArrayList<Node>();
 		ArrayList<Integer> initWaitTimes = new ArrayList<Integer>();
 		initNodes.add(prevNode);
@@ -66,8 +66,13 @@ public class PathFinder {
 				}
 			}
 			
-			
-			
+//			if(hasInitWaitTimeBeenRemoved == false) {
+//				for(Path p : paths) {
+//					p.getWaitTimes().remove(0);
+//				}
+//				hasInitWaitTimeBeenRemoved = true;
+//			}
+			System.out.println("waitTimeForRecord = "+waitTimeForRecord);
 			Path pathToEdit = paths.get(pathContext);
 			ArrayList<Node> nodesToEdit = pathToEdit.getNodes();
 			ArrayList<Integer> timesToEdit = pathToEdit.getWaitTimes();
@@ -78,7 +83,8 @@ public class PathFinder {
 				 */
 				nodesToEdit.add(nextNode);
 				timesToEdit.add(waitTimeForRecord);
-				pathToEdit.computeTotalTime();
+				//pathToEdit.computeTotalTime(); why was this here?
+				System.out.println("nodesToEdit size = "+nodesToEdit.size()+ " timesToEdit size = "+timesToEdit.size());
 			}
 			else {
 				/**
@@ -90,8 +96,10 @@ public class PathFinder {
 				ArrayList<Integer> branchWaitTimes = branchingPath.getWaitTimes();
 				branchNodes.add(nextNode);
 				branchWaitTimes.add(waitTimeForRecord);
+				System.out.println("branchWaitTimes size = "+branchWaitTimes.size()+ " branchNodes size = "+branchNodes.size());
 				paths.add(branchingPath);
 				pathContext = paths.size() - 1;
+				System.out.println(branchingPath.toString());
 			}
 		}
 		
@@ -102,7 +110,12 @@ public class PathFinder {
 		int total = 0;
 		for(int i = 0; i < path.size() - 1; i++) {
 			total += path.get(i).getDistance(path.get(i+1));
-			total += waitTimes.get(i);
+			if(waitTimes.get(i).equals(null)) {
+				
+			}
+			else {
+				total += waitTimes.get(i);
+			}
 		}
 		return total;
 	}
@@ -117,6 +130,7 @@ public class PathFinder {
 	}
 	
 	private static int minWaitTime(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
+		System.out.println("running minWaitTime with" +nodes.toString()+ ", " +waitTimes.toString()+ " from node "+from+" to node "+to);
 		int minWaitTime = 0;
 		int thisWaitTime = 0;
 		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes);
@@ -166,6 +180,7 @@ public class PathFinder {
 				}
 			}
 		}
+		System.out.println("minWaitTime = "+minWaitTime);
 		return minWaitTime;
 	}
 	
