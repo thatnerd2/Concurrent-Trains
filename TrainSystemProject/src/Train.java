@@ -6,6 +6,7 @@ public class Train {
 	private Node nodeFrom, nodeTo;
 	private int arrivalTime, distanceFrom;
 	private Path myPath;
+	
 	public Train () {}
 	
 	public Train (Path path) {

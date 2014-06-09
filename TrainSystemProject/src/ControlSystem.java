@@ -42,13 +42,19 @@ public class ControlSystem {
 			
 			if(newTrain) {
 				System.out.println("Computing new paths because new trains were sensed.");
+				ArrayList<Train> temporaryTrains = new ArrayList<Train>();
 				for (Train train : trains) {
+					temporaryTrains.add(train);
+					trains.remove(train);
+				}
+				for (Train train : temporaryTrains) {
 					ArrayList<Node> oldPath = train.getPath().getNodes();
 					Node source = train.getNodeFrom();
 					Node destination = oldPath.get(oldPath.size() - 1);
-					train.setPath(PathFinder.findPath(source, destination));
+					buildTrain(source, destination);
+					//train.setPath(PathFinder.findPath(source, destination));
 				}
-				//PathFinder.optimize();
+				
 				newTrain = false;
 			}
 			break;
