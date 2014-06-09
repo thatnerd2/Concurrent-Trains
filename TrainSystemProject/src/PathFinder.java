@@ -119,57 +119,43 @@ public class PathFinder {
 	private static int minWaitTime(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
 		int minWaitTime = 0;
 		int thisWaitTime = 0;
-		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes); // + getWaitTimes(currentPath)?
-		int myTimeLeavingPath = myTimeArrivingOnPath + from.getDistance(to);
-		System.out.println("EXECUTE MINWAITTIME");
+		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes);
+		int myTimeReachingEndOfPath = myTimeArrivingOnPath + from.getDistance(to);
 		for (Train train : ControlSystem.trains) 
 		{
 			Path currentPath = train.getPath();
 			ArrayList<Node> currentPathNodes = currentPath.getNodes();
 			
 			if (currentPathNodes.contains(from) && currentPathNodes.contains(to) 
-					&& (Math.abs(currentPathNodes.indexOf(from)) - currentPathNodes.indexOf(to) == 1)) 
+					&& (Math.abs(currentPathNodes.indexOf(from) - currentPathNodes.indexOf(to)) == 1)) 
 			{
-				thisWaitTime = 0;
-				int fromIndex = currentPathNodes.indexOf(from);
-				Path subsetToFromIndex = currentPath.getPathSubset(1, fromIndex);
-				
-				System.out.println("Going from node "+from+" to "+to);
-				System.out.println(ControlSystem.currentTime);
-				System.out.println(train.getArrivalTime());
-				System.out.println(subsetToFromIndex.totalTime);
-				System.out.println(waitTimes.get(nodes.indexOf(from)));
-				System.out.println("--------------------------------");
-				
+				int fromIndex  = currentPathNodes.indexOf(from);
+			
 				if (fromIndex == currentPathNodes.indexOf(to) + 1) 
 				{
+					Path pathToConflict = currentPath.getPathSubset(1, fromIndex - 1);
 					int timeGettingOnPath = ControlSystem.currentTime + 
-											train.getArrivalTime()+ 
-											subsetToFromIndex.totalTime +
-											waitTimes.get(nodes.indexOf(from));
+											train.getArrivalTime() + 
+											getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
+					int timeReachingEndOfPath = timeGettingOnPath + from.getDistance(to);
 					
-					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
-					
-					
-					if (overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
-							|| (overlaps(myTimeLeavingPath, timeGettingOnPath, timeLeavingPath))) 
+					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeReachingEndOfPath)
+							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeReachingEndOfPath))) 
 					{
 						if(myTimeArrivingOnPath < timeGettingOnPath) {
-							thisWaitTime = 0; //ensures that the first train to arrive at a collision-path will be allowed to go first
-											//i believe that if a train's path is modified after a previous train's path has already
-											//been optimized, this may lead to crashes. I can explain it more clearly in person
+							thisWaitTime = 0;
 						}
 						else {
-							thisWaitTime = timeLeavingPath - myTimeArrivingOnPath;
+							thisWaitTime = timeReachingEndOfPath - myTimeArrivingOnPath;
 						}
 					}
 				}
 				else  
 				{
+					Path pathToConflict = currentPath.getPathSubset(1, fromIndex);
 					int timeGettingToFromNode = ControlSystem.currentTime + 
 												train.getArrivalTime() + 
-												subsetToFromIndex.totalTime;
-					
+												getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
 						thisWaitTime = 1;
@@ -185,7 +171,7 @@ public class PathFinder {
 	
 	private static boolean isValid(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
 		
-		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes); // + getWaitTimes(currentPath)?
+		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes);
 		int myTimeReachingEndOfPath = myTimeArrivingOnPath + from.getDistance(to);
 		for (Train train : ControlSystem.trains) 
 		{
@@ -193,30 +179,30 @@ public class PathFinder {
 			ArrayList<Node> currentPathNodes = currentPath.getNodes();
 			
 			if (currentPathNodes.contains(from) && currentPathNodes.contains(to) 
-					&& (Math.abs(currentPathNodes.indexOf(from)) - currentPathNodes.indexOf(to) == 1)) 
+					&& (Math.abs(currentPathNodes.indexOf(from) - currentPathNodes.indexOf(to)) == 1)) 
 			{
-				int fromIndex = currentPathNodes.indexOf(from);
-				Path subsetToFromIndex = currentPath.getPathSubset(1, fromIndex);
-				
+				int fromIndex  = currentPathNodes.indexOf(from);
+			
 				if (fromIndex == currentPathNodes.indexOf(to) + 1) 
 				{
+					Path pathToConflict = currentPath.getPathSubset(1, fromIndex - 1);
 					int timeGettingOnPath = ControlSystem.currentTime + 
 											train.getArrivalTime() + 
-											subsetToFromIndex.totalTime;
+											getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
+					int timeReachingEndOfPath = timeGettingOnPath + from.getDistance(to);
 					
-					int timeLeavingPath = timeGettingOnPath + from.getDistance(to);
-					
-					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeLeavingPath)
-							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeLeavingPath))) 
+					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeReachingEndOfPath)
+							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeReachingEndOfPath))) 
 					{
 						return false;
 					}
 				}
 				else  
 				{
+					Path pathToConflict = currentPath.getPathSubset(1, fromIndex);
 					int timeGettingToFromNode = ControlSystem.currentTime + 
 												train.getArrivalTime() + 
-												subsetToFromIndex.totalTime;
+												getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
 						return false;

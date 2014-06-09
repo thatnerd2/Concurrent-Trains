@@ -18,7 +18,7 @@ public class TestAdministrator {
 		MapManager.connectNodes(C, D, 2);
 		Train t1 = ControlSystem.buildTrain(A, D);
 		System.out.println("T1: "+t1.getPath());
-		Train t2 = ControlSystem.buildTrain(B, A);
+		Train t2 = ControlSystem.buildTrain(B, D);
 		System.out.println("T2: "+t2.getPath());
 		ControlSystem.startSimulation();
 	}

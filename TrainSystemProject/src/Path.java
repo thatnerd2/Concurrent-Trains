@@ -5,18 +5,15 @@ import java.util.List;
 public class Path {
 	protected ArrayList<Node> nodes;
 	protected ArrayList<Integer> waitTimes;
-	public int totalTime;
 	
 	public Path() {
 		nodes = new ArrayList<Node>();
 		waitTimes = new ArrayList<Integer>();
-		totalTime = computeTotalTime();
 	}
 	
 	public Path(ArrayList<Node> nodes, ArrayList<Integer> waitTimes) {
 		this.nodes = nodes;
 		this.waitTimes = waitTimes;
-		totalTime = computeTotalTime();
 	}
 	
 	/**
