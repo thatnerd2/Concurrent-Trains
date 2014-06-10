@@ -15,6 +15,8 @@ public class TestAdministrator {
 		Node D = new Node("D");
 		MapManager.connectNodes(A, C, 5);
 		MapManager.connectNodes(B, C, 5);
+		MapManager.connectNodes(A, C, 67);
+		MapManager.connectNodes(B, C, 2);
 		MapManager.connectNodes(C, D, 2);
 		Train t1 = ControlSystem.buildTrain(A, D);
 		System.out.println("T1: "+t1.getPath());

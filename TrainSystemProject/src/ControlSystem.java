@@ -41,6 +41,7 @@ public class ControlSystem {
 			}
 			
 			if(newTrain) {
+				System.out.println("===============\n==============");
 				System.out.println("Computing new paths because new trains were sensed.");
 				ArrayList<Train> temporaryTrains = new ArrayList<Train>();
 				for (Train train : trains) {
