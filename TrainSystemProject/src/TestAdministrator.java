@@ -13,8 +13,6 @@ public class TestAdministrator {
 		Node B = new Node("B");
 		Node C = new Node("C");
 		Node D = new Node("D");
-		MapManager.connectNodes(A, C, 5);
-		MapManager.connectNodes(B, C, 5);
 		MapManager.connectNodes(A, C, 67);
 		MapManager.connectNodes(B, C, 2);
 		MapManager.connectNodes(C, D, 2);
