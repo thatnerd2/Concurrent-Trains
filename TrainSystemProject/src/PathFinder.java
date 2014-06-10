@@ -6,7 +6,6 @@ public class PathFinder {
 		Node nextNode = start;
 		Node prevNode = start;
 		int pathContext = -1;
-		//boolean hasInitWaitTimeBeenRemoved = false;
 		ArrayList<Node> initNodes = new ArrayList<Node>();
 		ArrayList<Integer> initWaitTimes = new ArrayList<Integer>();
 		initNodes.add(prevNode);
@@ -190,73 +189,6 @@ public class PathFinder {
 		return (nodes.contains(from) && nodes.contains(to) &&
 				Math.abs(nodes.indexOf(from) - nodes.indexOf(to)) == 1);
 	}
-	
-	private static int minWaitTime(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
-		System.out.println("running minWaitTime with" +nodes.toString()+ ", " +waitTimes.toString()+ " from node "+from+" to node "+to);
-		int minWaitTime = 0;
-		int thisWaitTime = 0;
-		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes);
-		int myTimeReachingEndOfPath = myTimeArrivingOnPath + from.getDistance(to);
-		for (Train train : ControlSystem.trains) 
-		{
-			Path currentPath = train.getPath();
-			ArrayList<Node> currentPathNodes = currentPath.getNodes();
-			
-			if (currentPathNodes.contains(from) && currentPathNodes.contains(to) 
-					&& (Math.abs(currentPathNodes.indexOf(from) - currentPathNodes.indexOf(to)) == 1)) 
-			{
-				int fromIndex  = currentPathNodes.indexOf(from);
-			
-				if (fromIndex == currentPathNodes.indexOf(to) + 1) 
-				{
-					Path pathToConflict = currentPath.getPathSubset(1, fromIndex - 1);
-					int timeGettingOnPath = ControlSystem.currentTime + 
-											train.getArrivalTime() + 
-											getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
-					int timeReachingEndOfPath = timeGettingOnPath + from.getDistance(to);
-					System.out.println(ControlSystem.currentTime);
-					System.out.println(train.getArrivalTime());
-					System.out.println(getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes()));
-					
-					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeReachingEndOfPath)
-							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeReachingEndOfPath))) 
-					{
-						System.out.println("myTimeArrivingOnPath: "+myTimeArrivingOnPath);
-						System.out.println("timeGettingOnPath: "+timeGettingOnPath);
-						System.out.println("timeReachingEndOfPath: "+timeReachingEndOfPath);
-						if(myTimeArrivingOnPath < timeGettingOnPath) {
-							thisWaitTime = 0;
-							System.out.println("just set it to 0");
-						}
-						else {
-							
-							thisWaitTime = timeReachingEndOfPath - myTimeArrivingOnPath;
-							System.out.println("calculating it myself: "+thisWaitTime);
-						}
-					}
-				}
-				else  
-				{
-					Path pathToConflict = currentPath.getPathSubset(1, fromIndex);
-					int timeGettingToFromNode = ControlSystem.currentTime + 
-												train.getArrivalTime() + 
-												getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
-					if(timeGettingToFromNode == myTimeArrivingOnPath) 
-					{
-						System.out.println("setting to one");
-						thisWaitTime = 1;
-					}
-				}
-				if(minWaitTime < thisWaitTime) {
-					minWaitTime = thisWaitTime;
-				}
-			}
-		}
-		System.out.println("minWaitTime = "+minWaitTime);
-		return minWaitTime;
-	}
-	
-	
 	
 	private static boolean overlaps(int check, int start, int end) {
 		if (check > start && check < end) {

@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 
-// remember to include whether or not things need to wait
-
 public class Train {
 	private Node nodeFrom, nodeTo;
 	private int arrivalTime, distanceFrom;
@@ -16,7 +14,6 @@ public class Train {
 		this.arrivalTime = ControlSystem.currentTime + nodeFrom.getDistance(nodeTo);
 		this.distanceFrom = nodeFrom.getDistance(nodeTo);
 	}
-	//get proportion to samir, from node 
 	public void update() {
 		if(nodeTo!=null) {
 			distanceFrom -= 1;
