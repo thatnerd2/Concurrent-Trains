@@ -57,7 +57,6 @@ public class PathFinder {
 					}
 				}
 			}
-			System.out.println("waitTimeForRecord = "+waitTimeForRecord);
 			Path pathToEdit = paths.get(pathContext);
 			ArrayList<Node> nodesToEdit = pathToEdit.getNodes();
 			ArrayList<Integer> timesToEdit = pathToEdit.getWaitTimes();

@@ -42,11 +42,11 @@ public class Train {
 	
 	public void updateDestination() {
 		ArrayList<Node> nodes = myPath.getNodes();
-		
+		ArrayList<Integer> waitTimes = myPath.getWaitTimes();
 		nodeFrom = nodes.get(1);
 		nodes.remove(0);
 		nodeTo = nodes.get(1);
-		//myWaitTimes.remove(0);
+		waitTimes.remove(0);
 	}
 	
 	public ArrayList<Integer> getWaitTimes() {

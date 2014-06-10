@@ -38,12 +38,15 @@ public class ControlSystem {
 			currentTime++;
 			for (Train train : trains) {
 				train.update();
+				if (train.getPath().getNodes().size() == 1) {
+					System.out.println("I have arrived");
+				}
 			}
 			
 			if(newTrain) {
 				System.out.println("===============\n==============");
 				System.out.println("Computing new paths because new trains were sensed.");
-				ArrayList<Train> temporaryTrains = new ArrayList<Train>();
+				//ArrayList<Train> temporaryTrains = new ArrayList<Train>();
 				/*for (Train train : trains) {
 					temporaryTrains.add(train);
 					trains.remove(train);
@@ -65,7 +68,6 @@ public class ControlSystem {
 				
 				newTrain = false;
 			}
-			break;
 		}
 	}
 	
