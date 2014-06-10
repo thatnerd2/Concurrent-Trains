@@ -13,7 +13,6 @@ public class PathFinder {
 		initWaitTimes.add(0);
 		Path path = new Path(initNodes, initWaitTimes);
 		paths.add(path);
-		System.out.println("Going from node "+start+" to "+end);
 		while (!nextNode.equals(end)) {
 			nextNode = null;
 			prevNode = null;
@@ -42,10 +41,7 @@ public class PathFinder {
 						/**
 						 * Calculate the total time required for this **prospective** branch, ignoring wait time.
 						 */
-						System.out.println("To: "+to);
 						int thisTotalTime = from.getDistance(to) + cumulativeTime;
-						System.out.println("Total time: "+thisTotalTime);
-						System.out.println("isValid: "+isValid(nodes, waitTimes, from, to));
 						if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
 								&& isValid(nodes, waitTimes, from, to)) {
 							prevNode = from;
@@ -77,7 +73,9 @@ public class PathFinder {
 				 * No new branching path will be created.
 				 */
 				nodesToEdit.add(nextNode);
-				timesToEdit.add(waitTimeForRecord);
+				timesToEdit.set(timesToEdit.size() -1, waitTimeForRecord);
+				timesToEdit.add(0);
+				//timesToEdit.add(waitTimeForRecord);
 				pathToEdit.computeTotalTime();
 			}
 			else {
@@ -89,10 +87,13 @@ public class PathFinder {
 				ArrayList<Node> branchNodes = branchingPath.getNodes();
 				ArrayList<Integer> branchWaitTimes = branchingPath.getWaitTimes();
 				branchNodes.add(nextNode);
-				branchWaitTimes.add(waitTimeForRecord);
+				branchWaitTimes.set(branchWaitTimes.size() - 1, waitTimeForRecord);
+				branchWaitTimes.add(0);
+				//branchWaitTimes.add(waitTimeForRecord);
 				paths.add(branchingPath);
 				pathContext = paths.size() - 1;
 			}
+			
 		}
 		
 		return paths.get(pathContext);
@@ -142,11 +143,17 @@ public class PathFinder {
 					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeReachingEndOfPath)
 							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeReachingEndOfPath))) 
 					{
+						System.out.println("myTimeArrivingOnPath: "+myTimeArrivingOnPath);
+						System.out.println("timeGettingOnPath: "+timeGettingOnPath);
+						System.out.println("timeReachingEndOfPath: "+timeReachingEndOfPath);
 						if(myTimeArrivingOnPath < timeGettingOnPath) {
 							thisWaitTime = 0;
+							System.out.println("just set it to 0");
 						}
 						else {
+							
 							thisWaitTime = timeReachingEndOfPath - myTimeArrivingOnPath;
+							System.out.println("calculating it myself: "+thisWaitTime);
 						}
 					}
 				}
@@ -158,6 +165,7 @@ public class PathFinder {
 												getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
 					if(timeGettingToFromNode == myTimeArrivingOnPath) 
 					{
+						System.out.println("setting to one");
 						thisWaitTime = 1;
 					}
 				}
