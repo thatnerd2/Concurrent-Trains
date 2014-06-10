@@ -42,7 +42,7 @@ public class PathFinder {
 						 * Calculate the total time required for this **prospective** branch, ignoring wait time.
 						 */
 						int thisTotalTime = from.getDistance(to) + cumulativeTime;
-						if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
+						/*if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
 								&& isValid(nodes, waitTimes, from, to)) {
 							prevNode = from;
 							nextNode = to;
@@ -50,8 +50,8 @@ public class PathFinder {
 							recordPathMinTime = thisTotalTime;
 							waitTimeForRecord = 0;
 						}
-						else if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
-								&& !isValid(nodes, waitTimes, from, to)) {
+						else */if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
+								/*&& !isValid(nodes, waitTimes, from, to)*/) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
@@ -139,6 +139,9 @@ public class PathFinder {
 											train.getArrivalTime() + 
 											getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
 					int timeReachingEndOfPath = timeGettingOnPath + from.getDistance(to);
+					System.out.println(ControlSystem.currentTime);
+					System.out.println(train.getArrivalTime());
+					System.out.println(getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes()));
 					
 					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeReachingEndOfPath)
 							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeReachingEndOfPath))) 
@@ -221,6 +224,8 @@ public class PathFinder {
 		//System.out.println("Is valid returned true");
 		return true;
 	}
+	
+	private static 
 	
 	private static boolean overlaps(int check, int start, int end) {
 		if (check > start && check < end) {

@@ -13,7 +13,7 @@ public class TestAdministrator {
 		Node B = new Node("B");
 		Node C = new Node("C");
 		Node D = new Node("D");
-		MapManager.connectNodes(A, C, 4);
+		MapManager.connectNodes(A, C, 6);
 		MapManager.connectNodes(B, C, 6);
 		MapManager.connectNodes(C, D, 2);
 		Train t1 = ControlSystem.buildTrain(A, D);
