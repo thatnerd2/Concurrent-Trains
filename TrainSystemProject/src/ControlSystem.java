@@ -44,7 +44,7 @@ public class ControlSystem {
 				System.out.println("===============\n==============");
 				System.out.println("Computing new paths because new trains were sensed.");
 				ArrayList<Train> temporaryTrains = new ArrayList<Train>();
-				for (Train train : trains) {
+				/*for (Train train : trains) {
 					temporaryTrains.add(train);
 					trains.remove(train);
 				}
@@ -54,6 +54,13 @@ public class ControlSystem {
 					Node destination = oldPath.get(oldPath.size() - 1);
 					buildTrain(source, destination);
 					//train.setPath(PathFinder.findPath(source, destination));
+				}*/
+				
+				for (Train train : trains) {
+					ArrayList<Node> oldPath = train.getPath().getNodes();
+					Node source = train.getNodeFrom();
+					Node destination = oldPath.get(oldPath.size() - 1);
+					train.setPath(PathFinder.findPath(source,  destination));
 				}
 				
 				newTrain = false;

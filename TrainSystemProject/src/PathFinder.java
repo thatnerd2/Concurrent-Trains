@@ -69,7 +69,6 @@ public class PathFinder {
 				nodesToEdit.add(nextNode);
 				timesToEdit.set(timesToEdit.size() -1, waitTimeForRecord);
 				timesToEdit.add(0);
-				//timesToEdit.add(waitTimeForRecord);
 				pathToEdit.computeTotalTime();
 			}
 			else {
@@ -83,7 +82,6 @@ public class PathFinder {
 				branchNodes.add(nextNode);
 				branchWaitTimes.set(branchWaitTimes.size() - 1, waitTimeForRecord);
 				branchWaitTimes.add(0);
-				//branchWaitTimes.add(waitTimeForRecord);
 				paths.add(branchingPath);
 				pathContext = paths.size() - 1;
 				System.out.println(branchingPath.toString());
@@ -162,22 +160,20 @@ public class PathFinder {
 					int otherTimeOfArrivalAtFrom = ControlSystem.currentTime + getTotalTime(conflictNodes, conflictTimes);
 					int otherTimeOfArrivalAtTo = from.getDistance(to);
 					
-					System.out.println(otherTimeOfArrivalAtFrom);
+					/*System.out.println(otherTimeOfArrivalAtFrom);
 					System.out.println(otherTimeOfArrivalAtTo);
 					System.out.println(myTimeOfArrivalAtFrom);
-					System.out.println(myTimeOfArrivalAtTo);
+					System.out.println(myTimeOfArrivalAtTo);*/
 					
 					if (overlaps(otherTimeOfArrivalAtFrom, myTimeOfArrivalAtFrom, myTimeOfArrivalAtTo) ||
 						overlaps(otherTimeOfArrivalAtTo, myTimeOfArrivalAtFrom, myTimeOfArrivalAtTo))
 					{
-						System.out.println("got into overlaps");
 						/**
 						 * It's as we feared.  We're going to crash unless we wait.
 						 */
 						return otherTimeOfArrivalAtTo - myTimeOfArrivalAtFrom;
 					}
 					else {
-						System.out.println("got into no crash");
 						/**
 						 * No crash, we're not going to be there at the same time anyway.
 						 */
