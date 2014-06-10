@@ -34,34 +34,29 @@ public class PathFinder {
 					 * checking it's neighbors to compare possible times with the recordTotalMinTime
 					 */
 					Node from = nodes.get(j);
-					int cumulativeTime = paths.get(i).computePathSubsetTime(0, j);
+					Path subsetToFromNode = paths.get(i).getPathSubset(0, j);
+					ArrayList<Node> subsetNodes = subsetToFromNode.getNodes();
+					ArrayList<Integer> subsetWaitTimes = subsetToFromNode.getWaitTimes();
+					int cumulativeTime = getTotalTime(subsetNodes, subsetWaitTimes);
 					
 					for (Node to : from.getAdjacents()) 
 					{
 						/**
 						 * Calculate the total time required for this **prospective** branch, ignoring wait time.
 						 */
-						int thisTotalTime = from.getDistance(to) + cumulativeTime;
-						/*if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
-								&& isValid(nodes, waitTimes, from, to)) {
+						int prospectiveWaitTime = minWaitTimeTest(subsetNodes, waitTimes, from, to);
+						int thisTotalTime = from.getDistance(to) + cumulativeTime + prospectiveWaitTime;
+						
+						if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord) {
 							prevNode = from;
 							nextNode = to;
 							pathContext = i;
-							recordPathMinTime = thisTotalTime;
-							waitTimeForRecord = 0;
-						}
-						else */if (!wasVisited(paths, to) && thisTotalTime < recordPathMinTime + waitTimeForRecord
-								/*&& !isValid(nodes, waitTimes, from, to)*/) {
-							prevNode = from;
-							nextNode = to;
-							pathContext = i;
-							recordPathMinTime = thisTotalTime;
-							waitTimeForRecord = minWaitTime(nodes, waitTimes, from, to);
+							recordPathMinTime = from.getDistance(to) + cumulativeTime;
+							waitTimeForRecord = prospectiveWaitTime;
 						}
 					}
 				}
 			}
-			
 			
 			
 			Path pathToEdit = paths.get(pathContext);
@@ -115,6 +110,86 @@ public class PathFinder {
 			}
 		}
 		return false;
+	}
+	
+	private static int minWaitTimeTest (ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
+		int myTimeOfArrivalAtTo = ControlSystem.currentTime + 
+								  getTotalTime(nodes, waitTimes) + 
+								  from.getDistance(to);
+		
+		int myTimeOfArrivalAtFrom = ControlSystem.currentTime +
+									getTotalTime(nodes, waitTimes);
+		
+		for (Train train : ControlSystem.trains) {
+			Path otherPath = train.getPath();
+			ArrayList<Node> otherNodes = otherPath.getNodes();
+			
+			if (hasUndirectedConnection(otherNodes, from, to)) {
+				int fromIndex = otherNodes.indexOf(from);
+				int toIndex = otherNodes.indexOf(to);
+				Path conflictingPath = otherPath.getPathSubset(0, toIndex);
+				ArrayList<Node> conflictNodes = conflictingPath.getNodes();
+				ArrayList<Integer> conflictTimes = conflictingPath.getWaitTimes();
+
+				if (fromIndex < toIndex) {
+					int otherTimeOfArrivalAtTo = ControlSystem.currentTime + getTotalTime(conflictNodes, conflictTimes);
+					int otherTimeOfArrivalAtFrom = otherTimeOfArrivalAtTo - from.getDistance(to);
+					
+					if (otherTimeOfArrivalAtFrom == myTimeOfArrivalAtFrom) {
+						/**
+						 * We get there at the same time, and we're headed in the same direction.
+						 * I'll be the gentleman.
+						 */
+						return 1;
+					}
+					else {
+						/**
+						 * He's already ahead of me or behind me.
+						 */
+						return 0;
+					}
+				}
+				else {
+					/**
+					 * We're heading in the exact opposite directions.  If both of us step on the path
+					 * at any point, we're going to crash.
+					 */
+					int otherTimeOfArrivalAtFrom = ControlSystem.currentTime + getTotalTime(conflictNodes, conflictTimes);
+					int otherTimeOfArrivalAtTo = from.getDistance(to);
+					
+					System.out.println(otherTimeOfArrivalAtFrom);
+					System.out.println(otherTimeOfArrivalAtTo);
+					System.out.println(myTimeOfArrivalAtFrom);
+					System.out.println(myTimeOfArrivalAtTo);
+					
+					if (overlaps(otherTimeOfArrivalAtFrom, myTimeOfArrivalAtFrom, myTimeOfArrivalAtTo) ||
+						overlaps(otherTimeOfArrivalAtTo, myTimeOfArrivalAtFrom, myTimeOfArrivalAtTo))
+					{
+						System.out.println("got into overlaps");
+						/**
+						 * It's as we feared.  We're going to crash unless we wait.
+						 */
+						return otherTimeOfArrivalAtTo - myTimeOfArrivalAtFrom;
+					}
+					else {
+						System.out.println("got into no crash");
+						/**
+						 * No crash, we're not going to be there at the same time anyway.
+						 */
+						return 0;
+					}
+				}
+			}
+		}
+		/**
+		 * No trains actually have that from -> to connection.  We never need to wait!
+		 */
+		return 0;
+	}
+	
+	private static boolean hasUndirectedConnection (ArrayList<Node> nodes, Node from, Node to) {
+		return (nodes.contains(from) && nodes.contains(to) &&
+				Math.abs(nodes.indexOf(from) - nodes.indexOf(to)) == 1);
 	}
 	
 	private static int minWaitTime(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
@@ -180,52 +255,7 @@ public class PathFinder {
 		return minWaitTime;
 	}
 	
-	private static boolean isValid(ArrayList<Node> nodes, ArrayList<Integer> waitTimes, Node from, Node to) {
-		
-		int myTimeArrivingOnPath = ControlSystem.currentTime + getTotalTime(nodes, waitTimes);
-		int myTimeReachingEndOfPath = myTimeArrivingOnPath + from.getDistance(to);
-		for (Train train : ControlSystem.trains) 
-		{
-			Path currentPath = train.getPath();
-			ArrayList<Node> currentPathNodes = currentPath.getNodes();
-			
-			if (currentPathNodes.contains(from) && currentPathNodes.contains(to) 
-					&& (Math.abs(currentPathNodes.indexOf(from) - currentPathNodes.indexOf(to)) == 1)) 
-			{
-				int fromIndex  = currentPathNodes.indexOf(from);
-			
-				if (fromIndex == currentPathNodes.indexOf(to) + 1) 
-				{
-					Path pathToConflict = currentPath.getPathSubset(1, fromIndex - 1);
-					int timeGettingOnPath = ControlSystem.currentTime + 
-											train.getArrivalTime() + 
-											getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
-					int timeReachingEndOfPath = timeGettingOnPath + from.getDistance(to);
-					
-					if(overlaps(myTimeArrivingOnPath, timeGettingOnPath, timeReachingEndOfPath)
-							|| (overlaps(myTimeReachingEndOfPath, timeGettingOnPath, timeReachingEndOfPath))) 
-					{
-						return false;
-					}
-				}
-				else  
-				{
-					Path pathToConflict = currentPath.getPathSubset(1, fromIndex);
-					int timeGettingToFromNode = ControlSystem.currentTime + 
-												train.getArrivalTime() + 
-												getTotalTime(pathToConflict.getNodes(), pathToConflict.getWaitTimes());
-					if(timeGettingToFromNode == myTimeArrivingOnPath) 
-					{
-						return false;
-					}
-				}
-			}
-		}
-		//System.out.println("Is valid returned true");
-		return true;
-	}
 	
-	private static 
 	
 	private static boolean overlaps(int check, int start, int end) {
 		if (check > start && check < end) {
