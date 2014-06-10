@@ -83,7 +83,6 @@ public class PathFinder {
 				branchWaitTimes.add(0);
 				paths.add(branchingPath);
 				pathContext = paths.size() - 1;
-				System.out.println(branchingPath.toString());
 			}
 			
 		}

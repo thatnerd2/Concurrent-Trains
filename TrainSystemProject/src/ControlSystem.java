@@ -64,10 +64,12 @@ public class ControlSystem {
 					Node source = train.getNodeFrom();
 					Node destination = oldPath.get(oldPath.size() - 1);
 					train.setPath(PathFinder.findPath(source,  destination));
+					System.out.println(train.getPath());
 				}
 				
 				newTrain = false;
 			}
+			System.out.print("-----------");
 		}
 	}
 	
